@@ -1,0 +1,21 @@
+{
+  "jobDefinition": {
+    "name": "Policy Destillation",
+    "description": "Policy Destillation experiments on the Breakout Environment (original)",
+    "clusterId": 4,
+    "dockerImage": "gpulab:GqhVJ2fbVzCLvsSByhVf@gitlab.ilabt.imec.be:4567/tave/low-power-reinforcement-learning:breakout2",
+    "resources": {
+      "gpus": 1,
+      "systemMemory": 4500,
+      "cpuCores": 1
+    },
+    "environment": {
+        "GPULab": 1
+    },
+    "jobDataLocations": [
+        {
+            "mountPoint": "/project"
+        }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+gym[atari]
+numpy
+pillow
+readchar
+matplotlib
+git+git://github.com/thomasave/distiller.git#egg=distiller

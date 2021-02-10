@@ -14,7 +14,7 @@ GAMMA = 0.99
 GLOBAL_SEED = 0
 MEM_SIZE = 100_000
 RENDER = False
-SAVE_PREFIX = "./models"
+SAVE_PREFIX = "/project/models"
 STACK_SIZE = 4
 
 EPS_START = 1.
@@ -31,10 +31,9 @@ EVALUATE_FREQ = 100_000
 rand = random.Random()
 rand.seed(GLOBAL_SEED)
 new_seed = lambda: rand.randint(0, 1000_000)
-os.mkdir(SAVE_PREFIX)
 
 torch.manual_seed(new_seed())
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda")
 env = MyEnv(device)
 agent = Agent(
     env.get_action_dim(),
@@ -50,10 +49,9 @@ memory = ReplayMemory(STACK_SIZE + 1, MEM_SIZE, device)
 #### Training ####
 obs_queue: deque = deque(maxlen=5)
 done = True
+best = -1 * float("inf")
 
-progressive = tqdm(range(MAX_STEPS), total=MAX_STEPS,
-                   ncols=50, leave=False, unit="b")
-for step in progressive:
+for step in range(MAX_STEPS):
     if done:
         observations, _, _ = env.reset()
         for obs in observations:
@@ -74,14 +72,10 @@ for step in progressive:
 
     if step % EVALUATE_FREQ == 0:
         avg_reward, frames = env.evaluate(obs_queue, agent, render=RENDER)
-        with open("rewards.txt", "a") as fp:
-            fp.write(f"{step//EVALUATE_FREQ:3d} {step:8d} {avg_reward:.1f}\n")
-        if RENDER:
-            prefix = f"eval_{step//EVALUATE_FREQ:03d}"
-            os.mkdir(prefix)
-            for ind, frame in enumerate(frames):
-                with open(os.path.join(prefix, f"{ind:06d}.png"), "wb") as fp:
-                    frame.save(fp, format="png")
-        agent.save(os.path.join(
-            SAVE_PREFIX, f"model_{step//EVALUATE_FREQ:03d}"))
+        print(f"Step {step}, Reward {avg_reward}")
+        if avg_reward > best:
+            best = avg_reward
+            with open("/project/rewards.txt", "a") as fp:
+                fp.write(f"{step//EVALUATE_FREQ:3d} {step:8d} {avg_reward:.1f}\n")
+            agent.save(os.path.join(SAVE_PREFIX, "best"))
         done = True

@@ -97,3 +97,7 @@ class Agent(object):
     def save(self, path: str) -> None:
         """save saves the state dict of the policy network."""
         torch.save(self.__policy.state_dict(), path)
+
+    def load(self, path):
+        self.__policy.load_state_dict(torch.load(path))
+        self.__policy.eval()
